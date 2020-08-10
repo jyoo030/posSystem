@@ -14,24 +14,21 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow, screen_size):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(screen_size.width(), screen_size.height())
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName("horizontalLayout")
 
-        self.listView = QtWidgets.QListView(self.centralwidget)
-        self.listView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.listView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.listView.setFlow(QtWidgets.QListView.LeftToRight)
-        self.listView.setResizeMode(QtWidgets.QListView.Adjust)
-        self.listView.setGridSize(QtCore.QSize(screen_size.width()/4.5, screen_size.height()/2))
-        self.listView.setViewMode(QtWidgets.QListView.IconMode)
-        self.listView.setUniformItemSizes(True)
-        self.listView.setObjectName("listView")
-        self.listView.setMovement(QtWidgets.QListView.Snap)
+        self.tableView = TableView(self.centralwidget)
+        self.tableView.setObjectName("tableView")
+        self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.tableView.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.tableView.horizontalHeader().hide()
+        self.tableView.verticalHeader().hide()
+        self.tableView.setFont(QtGui.QFont("Times", 26))
 
-        self.horizontalLayout.addWidget(self.listView)
+        self.horizontalLayout.addWidget(self.tableView)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -49,3 +46,22 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+
+class TableView (QtWidgets.QTableView):
+    signal = QtCore.pyqtSignal(str)
+    def __init__(self, parent = None):
+        super(TableView, self).__init__(parent)
+        self.parent = parent
+        self.clicked_once = False
+
+    def keyPressEvent (self, key_event):
+        super(TableView, self).keyPressEvent(key_event)
+        key = key_event.key()
+        if key == QtCore.Qt.Key_Return:
+            if self.clicked_once == True:
+                self.signal.emit("Return")
+                self.clicked_once = False
+            else:
+                self.clicked_once = True
+        else:
+            self.clicked_once = False
